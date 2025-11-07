@@ -1,11 +1,17 @@
 from bisect import bisect_left
-import time
+from math import ceil
+from typing import NamedTuple
+
+# All time values are in minutes
+# Storing them as ints/float is MUCH simpler
+# than using std types (thanks python)0)
+
 
 class TimePeriod:
-    start: float
-    end: float
+    start: int
+    end: int
 
-    def __init__(self, start: float, end: float) -> None:
+    def __init__(self, start: int, end: int) -> None:
         self.start = start
         self.end = end
 
@@ -26,13 +32,15 @@ class TimePeriod:
 
 class Group:
     count: int
-    next_available: float
+    next_available: int
     limit: TimePeriod
+    activity_idx: int
 
-    def __init__(self, count: int, limit: TimePeriod) -> None:
+    def __init__(self, count: int, activity_idx: int, limit: TimePeriod) -> None:
         self.count = count
         self.next_available = limit.start
         self.limit = limit
+        self.activity_idx = activity_idx
 
 class Court:
     time_available: list[TimePeriod]
@@ -40,18 +48,6 @@ class Court:
     def __init__(self, available: list[TimePeriod]) -> None:
         self.time_available = available
         self.time_available.sort()
-
-    def get_available_periods(self, limit: TimePeriod | None) -> list[TimePeriod]:
-        if limit is None:
-            return self.time_available
-        start = bisect_left(self.time_available, limit)
-        if start >= len(self.time_available) or self.time_available[start].start >= limit.end:
-            return []
-        end = len(self.time_available)
-        for i in range(start + 1, len(self.time_available)):
-            if self.time_available[i].start >= limit.end:
-               end = i
-        return self.time_available[start:end]
 
     def book_period(self, period: TimePeriod) -> bool:
         idx = bisect_left(self.time_available, period)
@@ -88,21 +84,86 @@ class Court:
 
         self.time_available.insert(idx, insert)
 
+class TimetableEntry(NamedTuple):
+    group_idx: int
+    period: TimePeriod
 
 class Solver:
     groups: list[Group]
     courts: list[Court]
-    rest_time: float
-    evaluate_time: float
+    rest_time: int
+    evaluate_time: int
+    stage_limits: list[int]
+    activity_durations: list[float]
 
-    def __init__(self, groups: list[Group], courts: list[Court], rest_time, evaluate_time) -> None:
+    def __init__(self, groups: list[Group], courts: list[Court], rest_time: int, evaluate_time: int, stage_limits: list[int], activity_durations: list[float]) -> None:
         self.groups = groups
         self.courts = courts
         self.rest_time = rest_time
         self.evaluate_time = evaluate_time
+        self.stage_limits = stage_limits
+        self.activity_durations = activity_durations
 
-    def find_timetable(self):
-        pass
+    def find_timetable(self) -> list[list[TimetableEntry]] | None:
+        if len(self.courts) == 0 or len(self.groups) == 0:
+            return None
 
-    def _find_timetable_recursive(self, idx: int):
-        pass
+        timetable: list[list[TimetableEntry]] = []
+        for i in range(0, len(self.courts)):
+            timetable.append([])
+        if self._find_timetable_recursive(0, timetable) is not None:
+            return None
+        return timetable
+
+    def _find_timetable_recursive(self, idx: int, timetable: list[list[TimetableEntry]]) -> TimetableEntry | None:
+        """
+        recursively builds timetable, records it on success
+        returns None on success, or information about group that couldn't get a place in timetable
+        """
+        if idx >= len(self.groups):
+            # everyone placed, we got a valid timetable
+            return None
+
+        group: Group = self.groups[idx]
+        stage_idx: int = len(self.stage_limits)
+        for i in range(0, len(self.stage_limits)):
+            if self.stage_limits[i] < group.count:
+                stage_idx = i
+        has_next_stage: bool = stage_idx == len(self.stage_limits)
+
+        duration: int = ceil(self.activity_durations[group.activity_idx] * group.count + self.evaluate_time)
+
+        fail_result = TimetableEntry(period=TimePeriod(group.next_available, group.limit.end), group_idx=idx)
+        for start in range(group.next_available, group.limit.end):
+            if start + duration > group.limit.end:
+                return fail_result
+            booked_period: TimePeriod = TimePeriod(start, start + duration)
+            for court_idx in range(0, len(self.courts)):
+                court = self.courts[court_idx]
+                if not court.book_period(booked_period):
+                    continue
+                prev_count = group.count
+                prev_next_available = group.next_available
+                if has_next_stage:
+                    group.count = self.stage_limits[stage_idx]
+                group.next_available = start + duration + self.rest_time
+                result = self._find_timetable_recursive(idx + 1 if has_next_stage else idx, timetable)
+
+                if result is None:
+                    timetable[court_idx].append(TimetableEntry(period=booked_period, group_idx=idx))
+                    return None
+
+                group.count = prev_count
+                group.next_available = prev_next_available
+                court.unbook_period(booked_period)
+                if result.group_idx == idx:
+                    # we are blocking ourselves, can't solve this by moving forward
+                    # someone else up the stack has to move
+                    return fail_result
+                elif booked_period.end < result.period.start or booked_period.start >= result.period.end:
+                    # we are not the ones blocking, skip to the last group that booked
+                    # a relevant period
+                    return result
+                # otherwise, try other values
+        # nothing found
+        return fail_result
