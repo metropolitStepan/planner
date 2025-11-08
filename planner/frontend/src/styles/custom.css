@@ -1,0 +1,242 @@
+/* Общий контейнер */
+#root {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: #f9fafb; 
+}
+
+/* Заголовок и подзаголовок */
+h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c468e;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 1.1rem;
+    color: #475569;
+    margin-bottom: 1.5rem;
+}
+
+/* Карточка / блок (например, секция параметров) */
+.card {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Зона загрузки файла */
+.upload-area {
+    border: 2px dashed #60a5fa;
+    background-color: #f0f9ff;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    transition: background-color 0.2s ease;
+}
+
+.upload-area:hover {
+    background-color: #e0f2fe;
+}
+
+/* Информация о загруженном файле */
+.uploaded-file {
+    display: inline-block;
+    font-weight: 600;
+    color: #0369a1;
+    margin-top: 0.5rem;
+}
+
+/* Параметры планирования */
+.params {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+}
+
+/* Поля ввода (числовые поля) */
+input[type="number"],
+input[type="text"],
+input[type="time"] {
+    width: 90px;
+    padding: 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    text-align: center;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+input[type="time"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #bfdbfe;
+}
+
+/* Кнопка “Сформировать расписание” */
+button,
+.schedule-button {
+    background-color: #407fca;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-size: 0.9rem;
+}
+
+button:hover,
+.schedule-button:hover {
+    background-color: #3068ad;
+    transform: translateY(-1px);
+}
+
+/* Кнопка “Удалить файл” */
+.delete-button {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+.delete-button:hover {
+    color: #b91c1c;
+}
+
+/* Маленькие подписи */
+label {
+    color: #374151;
+    font-weight: 500;
+    margin-right: 0.25rem;
+}
+
+.drop-zone {
+  border: 2px dashed #60a5fa;       /* голубая пунктирная рамка */
+  background-color: #f0f9ff;        /* нежно-голубой фон */
+  border-radius: 0.75rem;           /* скруглённые углы */
+  padding: 3rem 2rem;               /* внутренние отступы */
+  text-align: center;
+  color: #1e40af;                   /* тёмно-синий текст */
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.drop-zone:hover {
+  background-color: #e0f2fe;        /* чуть ярче при наведении */
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.drop-zone.dragover {
+  background-color: #dbeafe;        /* активный фон при перетаскивании файла */
+  border-color: #2563eb;
+  color: #1d4ed8;
+}
+
+/* Подпись под зоной */
+.drop-zone small {
+  display: block;
+  color: #64748b;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.drop-zone.uploaded {
+  background-color: rgb(222, 241, 228) !important; 
+  border-color: #14893f !important;     
+  color: #166534 !important;           
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.constraints-form {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* Заголовок */
+.constraints-form h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Сетка для полей */
+.constraints-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  column-gap: 2rem;
+  row-gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Подписи (label) */
+.constraints-grid label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #334155;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+/* Поля ввода */
+.constraints-grid input[type="date"],
+.constraints-grid input[type="time"],
+.constraints-grid input[type="number"] {
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #1e293b;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.constraints-grid input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #bfdbfe;
+}
+
+/* Кнопка “Сформировать расписание” */
+button {
+  background-color: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
