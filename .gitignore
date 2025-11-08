@@ -205,3 +205,18 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Временные выгрузки адаптера
+_upload_*
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# OS/IDE
+.DS_Store
