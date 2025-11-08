@@ -148,7 +148,6 @@ class Solver:
         if group.activity not in self.activity_durations:
             raise ValueError(
                 f"unknown activity '{group.activity}'")
-            )
         elif group.count <= 0:
             raise ValueError(f"performer count must be positive, got {group.count}")
         return ceil(
