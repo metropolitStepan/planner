@@ -62,7 +62,10 @@ def call_planner(params: Dict[str, Any]) -> Dict[str, Any]:
                 if isinstance(result, str):
                     result = json.loads(result)
                 if result is None:
-                    raise HTTPException(status_code=400, detail="Не удалось построить расписание с заданными ограничениями")
+                    raise HTTPException(
+                        status_code=400, 
+                        detail="Не удалось построить расписание с заданными ограничениями. Возможные причины: недостаточно времени, конфликты в расписании кортов, слишком строгие временные ограничения групп. Попробуйте увеличить временное окно, добавить больше кортов или ослабить ограничения."
+                    )
                 if not isinstance(result, dict):
                     raise HTTPException(status_code=500, detail="planner returned non-dict")
                 return result
@@ -138,6 +141,14 @@ def schedule_plan(req: PlanRequest):
     params = req.dict()
     params.setdefault("options", {})
     params["options"]["lastUploadPath"] = next(iter(UPLOADS.values()), None)
+    
+    # Проверяем, что файл был загружен
+    if not params["options"]["lastUploadPath"]:
+        raise HTTPException(
+            status_code=400, 
+            detail="Не загружен файл с данными. Пожалуйста, сначала загрузите Excel-файл на вкладке 'Загрузка данных'."
+        )
+    
     # Добавляем параметры restTime и evaluateTime, если они не указаны (по умолчанию 0)
     params.setdefault("restTime", 0)
     params.setdefault("evaluateTime", 0)

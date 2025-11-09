@@ -22,7 +22,9 @@ export default function ConstraintsForm({onPlanned}:{onPlanned:(id:string)=>void
       const res = await planSchedule(req);
       onPlanned(res.id);
     } catch (e:any) {
-      setErr(e.message ?? "Не удалось сформировать расписание");
+      // Извлекаем детальное сообщение об ошибке из ответа API
+      const errorMessage = e.response?.data?.detail || e.message || "Не удалось сформировать расписание";
+      setErr(errorMessage);
     } finally {
       setLoading(false);
     }
